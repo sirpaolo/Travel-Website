@@ -1,0 +1,688 @@
+<?php 
+    $serverName="HELIOS"; 
+    $connectionOptions=[ 
+        "Database"=>"DLSU", 
+        "Uid"=>"", 
+        "PWD"=>"" 
+    ]; 
+    $conn=sqlsrv_connect($serverName, $connectionOptions); 
+    if($conn==false) {
+        die(print_r(sqlsrv_errors(),true)); 
+    } 
+
+        $sql_profile = "SELECT TOP 1 NAME FROM USERS ORDER BY USERID DESC";
+        $result_profile = sqlsrv_query($conn, $sql_profile);
+        $row_profile = sqlsrv_fetch_array($result_profile);
+        $username = $row_profile['NAME'];
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GABAi – Explore & Book</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --brand-orange: #FF823D;    /* brand accent color */
+      --brand-purple: #5A3CFF;    /* optional theme color */
+      --brand-cyan:   #00D8FF;    /* optional theme color */
+      --brand-dark:   #1E1E1E;    /* dark text / background color */
+      --brand-light:  #F9F9F9;    /* light background color */
+      --brand-brown:  #8b6844;    /* secondary accent color */
+      --brand-lime:   #cdee73;    /* secondary accent color */
+    }
+
+    body {
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;   /* main font */
+      color: var(--brand-dark);             /* default text color */
+      background-color: var(--brand-light); /* light page background */
+    }
+
+    .navbar-nav .nav-link {
+      color: var(--brand-brown);          /* nav text color */
+    }
+
+    .navbar {
+      background-color: white;            /* dark navbar */
+    }
+
+    .navbar .navbar-brand {
+      color: var(--brand-brown);           /* brand logo color */
+      font-weight: 600;                     /* medium bold weight */
+    }
+
+    .hero {
+      position: relative;                   /* enables overlay & layered items */
+      height: 80vh;                        /* full-screen section */
+      display: flex;                        /* center content */
+      align-items: center;                  /* vertical center */
+      justify-content: center;              /* horizontal center */
+      color: white;                         /* hero text color */
+      overflow: hidden;                     /* hide overflow content */
+    }
+
+    .hero-content {
+      position: relative;                   /* keep above overlay */
+      z-index: 2;                           /* layered above carousel */
+      text-align: center;                   /* center text */
+      max-width: 800px;                     /* limit text width */
+      padding: 0 20px;                      /* small horizontal padding */
+    }
+
+    .hero-title {
+      font-size: 8rem;                      /* huge hero title */
+      line-height: 1;                       /* tight spacing */
+    }
+
+    .carousel-item img {
+      object-fit: cover;                    /* crop image to fill space */
+    }
+
+    .hero::before {                         /* Dark overlay effect */
+      content: "";                          /* creates overlay layer */
+      position: absolute;                   /* stretch inside hero */
+      top: 0; left: 0;                      /* start at top-left corner */
+      width: 100%; height: 100%;            /* cover entire hero */
+      background: rgba(0,0,0,0.30);         /* DARK overlay effect */
+      z-index: 2;                           /* overlay above images */
+      pointer-events: none;                 /* keep carousel buttons clickable */
+    }
+
+    .hero .hero-content {                   /* Title and subtext */
+      position: relative;                   /* text layer positioning */
+      z-index: 2;                           /* above overlay */
+      text-align: center;                   /* center text */
+      width: 100%;                          /* full width */
+      max-width: none;                      /* allow very large text */
+      padding: 0 20px;                      /* inner spacing */
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+      width: 45px;                          /* arrow button size */
+      height: 45px;
+      top: 50%;                             /* vertical center */
+      transform: translateY(-50%);          /* exact vertical center */
+      background-color: none;               /* no background */
+      border-radius: 50%;                   /* circular shape */
+      border: none;                         /* no border */
+      opacity: 1;                           /* fully visible */
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+      filter: invert(1) brightness(0);      /* black arrow icons */
+    }
+
+    .hero .carousel-control-prev {
+      left: 20px;
+    }
+
+    .hero .carousel-control-next {
+      right: 20px;
+    }
+
+    .carousel-control-prev {
+      left: -50px;                          /* move arrow left OUTSIDE */
+    }
+
+    .carousel-control-next {
+      right: -50px;                         /* move arrow right OUTSIDE */
+    }
+
+
+    .search-bar {
+      background: white;
+      border-radius: 50px;
+      padding: 12px 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    .search-bar .form-control, .search-bar .form-select {
+      border: none;
+      outline: none;
+      box-shadow: none;
+    }
+    .search-bar .btn {
+      background: var(--brand-orange);
+      color: white;
+      border-radius: 50px;
+      padding: 10px 25px;
+    }
+
+    .options-btns .btn {
+      border-radius: 30px;
+      margin: 6px;
+      color: var(--brand-brown);
+      border: 1px solid var(--brand-brown);
+      background: white;
+      transition: all .3s ease;
+    }
+    .options-btns .btn:hover {
+      background: var(--brand-brown);
+      color: white;
+    }
+
+ /* SECOND HERO - background + overlay */
+.hero-two {
+  position: relative;
+  height: 80vh;
+  min-height: 420px;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* background element (NO transition) */
+.hero-two-bg {
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 1;
+  /* transition removed */
+}
+
+/* darker overlay */
+.hero-two-overlay {
+  background: rgba(0,0,0,0.50);
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.hero-two-content {
+  position: absolute;     /* allow custom positioning */
+  bottom: 40px;           /* distance from bottom */
+  left: 40px;             /* distance from left */
+  z-index: 3;
+  color: white;
+  text-align: left;       /* left-align text */
+  max-width: 400px;       /* optional: avoid super-wide text */
+}
+
+
+/* thumbnail row bottom-right */
+.thumb-row {
+  position: absolute;
+  bottom: 60px;
+  right: 20px;
+  z-index: 4;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+/* Thumbnail cards (NO transition) */
+.thumb-card {
+  border: none;
+  padding: 0;
+  background: transparent;
+  width: 60px;
+  height: 100px;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  
+}
+
+/* Thumbnail image */
+.thumb-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Active thumbnail */
+.thumb-card.active {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+}
+
+/* Hover (instant — no transition) */
+.thumb-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.20);
+}
+
+/* keyboard focus */
+.thumb-card:focus {
+  box-shadow: 0 0 0 3px rgba(188,228,114,0.22);
+}
+
+/* mobile adjustments */
+@media (max-width: 576px) {
+  .hero-two { height: 56vh; min-height: 340px; }
+  .thumb-card { width: 72px; height: 50px; }
+}
+
+
+    .destination-card {
+      overflow: hidden;
+      border: none;
+      transition: transform .3s ease, box-shadow .3s ease;
+      cursor: pointer;
+    }
+    .destination-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.20);
+    }
+    .destination-card img {
+      height: 220px;
+      object-fit: cover;
+    }
+    .destination-card .card-body {
+      text-align: center;
+      padding: 1rem;
+    }
+    .review-stars {
+      color: #ffae00;
+    }
+
+    footer {
+      background: white;
+      padding: 40px 0;
+      text-align: center;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+      <a class="navbar-brand fs-3" href="#">GABAi 𓆝 </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse justify-content-center" id="navMenu">
+        <ul class="navbar-nav mb-2 mb-lg-0">
+          <li class="nav-item mx-3"><a class="nav-link" href="#">HOME</a></li>
+          <li class="nav-item mx-3"><a class="nav-link" href="#destinations">DESTINATIONS</a></li>
+          <li class="nav-item mx-3"><a class="nav-link" href="#">DEALS</a></li>
+          <li class="nav-item mx-3"><a class="nav-link" href="#">ABOUT US</a></li>
+        </ul>
+      </div>
+
+      <button type="button" class="btn mx-2" style="background-color: transparent; color: #8b6844; border-radius: 50px; border-color: #8b6844;"><?php echo $username; ?></button>
+      <button type="button" class="btn" style="background-color: #8b6844; color: white; border-radius: 50px;" >Log Out</button>
+
+    </div>
+  </nav>
+
+<!-- Hero Section -->
+<section class="hero position-relative">
+
+  
+  <!-- Carousel -->
+  <div id="heroCarousel" class="carousel slide w-100 h-100 position-absolute top-0 start-0" data-bs-ride="carousel">
+    <div class="carousel-inner h-100">
+      <div class="carousel-item active h-100" >
+        <img src="Images/pinatubo1.jpg" class="d-block w-100 h-100" alt="Slide 1">
+      </div>
+      <div class="carousel-item h-100">
+        <img src="Images/fd4.jpg" class="d-block w-100 h-100" alt="Slide 2">
+      </div>
+      <div class="carousel-item h-100">
+        <img src="https://i.pinimg.com/1200x/d9/ad/59/d9ad5911ab6b224a94af3823bc508d0d.jpg" class="d-block w-100 h-100" alt="Slide 3">
+      </div>
+      <div class="carousel-item h-100">
+        <img src="https://i.pinimg.com/1200x/23/1c/81/231c817b08e7e1b77e055c4b3bdcfdaa.jpg" class="d-block w-100 h-100" alt="Slide 4">
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay -->
+  <div class="hero-overlay position-absolute w-100 h-100" style="background: rgba(0,0,0,0.45); pointer-events: none;"></div>
+
+  <!-- Hero content -->
+  <div class="w-100 text-center position-absolute top-50 start-50 translate-middle hero-content">
+    <h1 class="display-4 fw-normal text-white">WELCOME TO THE</h1>
+    <h1 class="hero-title text-white fw-bolder text-center">PHILIPPINES</h1>
+
+    <p class="lead text-white">No matter where your heart leads you, we’re here to help you</p>
+    <p class="lead text-white">find the perfect destination for every moment, every dream, and every adventure.</p>
+
+    <!-- Search Bar 
+    <div class="search-bar d-flex align-items-center justify-content-between mx-auto px-2 py-2" style="max-width: 600px;">
+      <input type="text" class="form-control border-0 shadow-none flex-fill ms-2" placeholder="Search destinations or activities" />
+      <button class="btn px-4 py-2 ms-2">Search</button>
+    </div>
+
+    -- Option Buttons 
+    <div class="options-btns mt-4">
+      <button class="btn">Flights</button>
+      <button class="btn">Hotels</button>
+      <button class="btn">Activities</button>
+      <button class="btn">Packages</button>
+    </div>
+  </div> -->
+
+  <!-- Carousel Controls (outside content layer, clickable) -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+
+  <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+
+</section>
+
+
+<!-- Where to next? Section -->
+<section class="container my-5">
+    <h2 class="fw-semibold mb-4">Where to next?</h2>
+
+    <div class="row g-4">
+
+          <div class="col-md-2" style="max-width: 300px;">
+            <div class="card destination-card">
+              <img src="https://i.pinimg.com/1200x/b6/0e/d4/b60ed4cc08e22ae3306dda3629ddffcc.jpg" class="card-img-top" alt="Destination 1">
+            </div>
+          </div>
+
+          <div class="col-md-2" style="max-width: 300px;">
+            <div class="card destination-card">
+              <img src="https://i.pinimg.com/736x/ee/df/3b/eedf3b5961f9a2e727777e4e5ae6b1a1.jpg" class="card-img-top" alt="Destination 2">
+            </div>
+          </div>
+
+          <div class="col-md-2" style="max-width: 300px;">
+            <div class="card destination-card">
+              <img src="https://i.pinimg.com/736x/7b/ef/81/7bef81233a21b42f734b3f43b705e4c0.jpg" class="card-img-top" alt="Destination 3">
+            </div>
+          </div>
+
+          <div class="col-md-2" style="max-width: 300px;">
+            <div class="card destination-card">
+              <img src="https://i.pinimg.com/736x/49/4a/bd/494abd645df41d9b3b523f6bed010499.jpg" class="card-img-top" alt="Destination 4">
+
+            </div>
+          </div>
+          <div class="col-md-2" style="max-width: 300px;">
+            <div class="card destination-card">
+              <img src="https://i.pinimg.com/736x/94/a2/bf/94a2bfb1e1690b9943e7a16197a08eb3.jpg" class="card-img-top" alt="Destination 4">
+
+            </div>
+          </div>
+
+          <div class="col-md-2" style="max-width: 300px;">
+            <div class="card destination-card">
+              <img src="https://i.pinimg.com/1200x/e9/91/70/e9917099ba24fe0999b3b540e7a6b691.jpg" class="card-img-top" alt="Destination 4">
+
+            </div>
+          </div>
+
+    </div>
+</section>
+
+<section class="py-3"></section>
+
+
+<!-- Second Hero (single background with clickable thumbnails) -->
+<section class="hero-two position-relative">
+
+  <!-- Background layer (changes via JS) -->
+  <div class="hero-two-bg position-absolute top-0 start-0 w-100 h-100"
+       style="background-image: url('https://i.pinimg.com/1200x/39/17/3d/39173dc813d7c8f53d8cd42ff0e37fd0.jpg');">
+  </div>
+
+  <!-- Dark overlay for readability -->
+  <div class="hero-two-overlay position-absolute top-0 start-0 w-100 h-100" aria-hidden="true"></div>
+
+  <!-- Centered text content -->
+  <div class="hero-two-content">
+    <h2 id="hero-two-title" class="h1 fw-bold text-white"></h2>
+    <p id="hero-two-desc" class="lead text-white mb-5"></p>
+  </div>
+
+
+  <!-- Thumbnail row positioned bottom-right -->
+  <div class="thumb-row" role="list">
+
+  <!-- thumb 1 -->
+  <button class="thumb-card"
+    data-bg="Images/fd3.jpg"
+    data-title="Mabini, Batangas"
+    data-desc="Renowned for its stunning diving spots, beautiful beaches, and rich cultural heritage, making it a popular destination for both adventure seekers and history enthusiasts."
+    aria-label="Set background to image 1">
+    <img src="Images/fd3.jpg" alt="Thumbnail 1">
+  </button>
+
+  <!-- thumb 2 -->
+  <button class="thumb-card active"
+    data-bg="Images/coron1.jpg"
+    data-title=" Coron, Palawan"
+    data-desc="Renowned for its stunning crystal-clear waters, unique brackish composition, and breathtaking limestone formations, making it one of the cleanest lakes in Asia."
+    aria-label="Set background to image 2">
+    <img src="Images/coron1.jpg" alt="Thumbnail 2">
+  </button>
+
+  <!-- thumb 3 -->
+  <button class="thumb-card"
+    data-bg="Images/iao1.jpg"
+    data-title="Cloud 9 Siargao"
+    data-desc="The Surfing Capital of the Philippines, known for Cloud 9 waves and peaceful island life."
+    aria-label="Set background to image 3">
+    <img src="Images/iao1.jpg" alt="Thumbnail 3">
+  </button>
+
+  <!-- thumb 4 -->
+  <button class="thumb-card"
+    data-bg="Images/bora4.jpg"
+    data-title="Boracay Island"
+    data-desc="One of the world's finest beaches, famous for powder-soft sand and vibrant nightlife."
+    aria-label="Set background to image 4">
+    <img src="Images/bora4.jpg" alt="Thumbnail 4">
+  </button>
+
+    <!-- thumb 5 -->
+  <button class="thumb-card"
+    data-bg="Images/iao2.jpg"
+    data-title="Coconut View Deck Siargao"
+    data-desc="If you’re motorbiking around the island, the Coconut View Deck makes for a great place to pause and soak in the scenery."
+    aria-label="Set background to image 5">
+    <img src="Images/iao2.jpg" alt="Thumbnail 5">
+  </button>
+
+      <!-- thumb 6 -->
+  <button class="thumb-card"
+    data-bg="Images/zamb2.jpg"
+    data-title="Coto Mines Zambales"
+    data-desc="Whether you’re an outdoor enthusiast or someone looking to escape the hustle and bustle of city life, Coto Mines Zambales is a destination that promises a unique and immersive travel experience."
+    aria-label="Set background to image 6">
+    <img src="Images/zamb2.jpg" alt="Thumbnail 6">
+  </button>
+
+  </div>
+
+  
+</section>
+
+<section id="destinations" class="py-3"></section>
+
+<!-- Popular Destinations Section -->
+<section id="" class="container my-5">
+  <h2 class="text-center fw-semibold mb-4">Traveler's Choice</h2>
+
+  <div id="cardCarousel" class="carousel slide" data-bs-ride="false">
+    <div class="carousel-inner">
+
+      <!-- First Slide -->
+      <div class="carousel-item active">
+        <div class="row g-4 justify-content-center">
+
+          <div class="col-md-3" style="max-width: 300px;">
+            <div class="card destination-card"
+                style="cursor: pointer;"
+                onclick="window.location.href='iao.html';">
+
+              <img src="https://i.pinimg.com/1200x/df/ac/00/dfac00de75d4315b35b9f65062098a30.jpg" 
+                  class="card-img-top" alt="Destination 1">
+
+              <div class="card-body">
+                <p class="card-text text-muted">Boat tours • Siargao Island</p>
+                <h5 class="card-title"><strong>Tri-Island Tour in Siargao</strong></h5>
+                <p class="card-text text-muted">Hotel pick-up</p>
+                <p class="card-text text-muted"><span class="review-stars"><strong>★5.0</strong></span> (1,964) • 10K+ booked</p>
+                <p><strong>₱ 1,470</strong></p>
+              </div>
+
+            </div>
+          </div>
+
+
+          <div class="col-md-3" style="max-width: 300px;">
+            <div class="card destination-card"
+              style="cursor: pointer;"
+              onclick="window.location.href='mbrental.html';">
+              <img src="https://i.pinimg.com/1200x/1a/ca/f0/1acaf0e79fbe00831ab089bb868dd70b.jpg" class="card-img-top" alt="Destination 2">
+              <div class="card-body">
+                <p class="card-text text-muted">Scooters & Bikes • Siargao Island</p>
+                <h5 class="card-title"><strong>Siargao Island Motorbike Rental</strong></h5>
+                <p class="card-text text-muted">Gasoline</p>
+                <p class="card-text text-muted"><span class="review-stars"><strong>★4.8</strong></span> (467) • 700+ booked</p>
+                <p><strong>₱ 395</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3" style="max-width: 300px;">
+            <div class="card destination-card"
+              style="cursor: pointer;"
+              onclick="window.location.href='boraparasail.html';">
+              <img src="https://i.pinimg.com/1200x/71/75/5e/71755e6c7716a5b951f430ceb07f6035.jpg" class="card-img-top" alt="Destination 3">
+              <div class="card-body">
+                <p class="card-text text-muted">Paragliding • Boracay</p>
+                <h5 class="card-title"><strong>Boracay Parasailing</strong></h5>
+                <p class="card-text text-muted">English guided</p>
+                <p class="card-text text-muted">Morning departure</p>
+                <p class="card-text text-muted"><span class="review-stars"><strong>★4.9</strong></span> (2,876) • 30K+ booked</p>
+                <p><strong>₱ 1,764</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3" style="max-width: 300px;">
+            <div class="card destination-card"
+              style="cursor: pointer;"
+              onclick="window.location.href='corondaytour.html';">
+              <img src="https://i.pinimg.com/1200x/6e/88/06/6e88066b8a86d4f02b7c2c892c185e4c.jpg" class="card-img-top" alt="Destination 4">
+              <div class="card-body">
+                <p class="card-text text-muted">Water sports • Coron</p>
+                <h5 class="card-title"><strong>Coron Ultimate Island Day Tour</strong></h5>
+                <p class="card-text text-muted">Book now for tomorrow</p>
+                <p class="card-text text-muted">Free cancellation</p>
+                <p class="card-text text-muted"><span class="review-stars"><strong>★4.6</strong></span> (810) • 9K+ booked</p>
+                <p><strong>₱ 1,689</strong></p>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+
+      <!-- Second Slide -->
+      <div class="carousel-item">
+        <div class="row g-4 justify-content-center">
+          
+          <div class="col-md-3" style="max-width: 300px;">
+            <div class="card destination-card">
+              <img src="https://cdn.studios.skies.asia/www.selahpods.com/LRlbmSPuqR_1590551856.jpg" class="card-img-top" alt="Destination 5">
+              <div class="card-body">
+                <p class="card-text text-muted">Hotels • Pasay</p>
+                <h5 class="card-title"><strong>Selah Pods Hotel Manila</strong></h5>
+                <p class="card-text text-muted">Instant confirmation</p>
+                <p class="card-text text-muted"><span class="review-stars"><strong>★4.5</strong></span> (420) • 400+ booked</p>
+                <p><strong>₱ 1,702</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card destination-card" style="max-width: 300px;">
+              <img src="https://i.pinimg.com/1200x/a2/05/45/a20545ee412364dd62f1e58dcd5cef21.jpg" class="card-img-top" alt="Destination 6">
+              <div class="card-body">
+                <p class="card-text text-muted">Day trips • Legazpi</p>
+                <h5 class="card-title"><strong>Mayon ATV Bicol Adventure with Roundtrip Shuttle</strong></h5>
+                <p class="card-text text-muted">Private tour</p>
+                <p class="card-text text-muted">Small group</p>
+                <p class="card-text text-muted"><span class="review-stars"><strong>★4.7</strong></span> (1,532) • 9K+ booked</p>
+                <p><strong>₱ 2,045</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card destination-card" style="max-width: 300px;">
+              <img src="https://assets.micontenthub.com/DXBDJ/outlets/fogueira/1680868167-Buffet3.jpg" class="card-img-top" alt="Destination 7">
+              <div class="card-body">
+                <p class="card-text text-muted">Food & dining • Cebu City</p>
+                <h5 class="card-title"><strong>Viking Luxury Buffet in SM City Cebu</strong></h5>
+                <p class="card-text text-muted">Instant confirmation</p>
+                <p class="card-text text-muted"><span class="review-stars"><strong>★4.9</strong></span> (22) • 600+ booked</p>
+                <p><strong>₱ 910</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card destination-card" style="max-width: 300px;">
+              <img src="https://i.pinimg.com/736x/b4/b1/29/b4b129d0f76370a4ccd13d11e4fd111d.jpg" class="card-img-top" alt="Destination 8">
+              <div class="card-body">
+                <p class="card-text text-muted">Zoos & aquariums • Cebu City</p>
+                <h5 class="card-title"><strong>Cebu Ocean Park Ticket</strong></h5>
+                <p class="card-text text-muted">Book now for tomorrow</p>
+                <p class="card-text text-muted"><span class="review-stars"><strong>★4.8</strong></span> (3,222) • 100K+ booked</p>
+                <p><strong>₱ 690</strong></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Carousel Controls -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#cardCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+
+    <button class="carousel-control-next" type="button" data-bs-target="#cardCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+
+  </div>
+</section>
+
+
+
+  <!-- Footer -->
+  <footer>
+    <p class="mb-0">© 2025 TravelSite. All rights reserved.</p>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="herobg.js"></script>
+
+</body>
+</html>
