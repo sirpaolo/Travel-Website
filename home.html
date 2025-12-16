@@ -1,16 +1,3 @@
-<?php 
-    $serverName="HELIOS"; 
-    $connectionOptions=[ 
-        "Database"=>"DLSU", 
-        "Uid"=>"", 
-        "PWD"=>"" 
-    ]; 
-    $conn=sqlsrv_connect($serverName, $connectionOptions); 
-    if($conn==false) {
-        die(print_r(sqlsrv_errors(),true)); 
-    } 
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>

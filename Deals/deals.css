@@ -1,0 +1,200 @@
+    :root{
+      --brand-orange: #FF823D;    /* brand accent color */
+      --brand-purple: #5A3CFF;    /* optional theme color */
+      --brand-cyan:   #00D8FF;    /* optional theme color */
+      --brand-dark:   #1E1E1E;    /* dark text / background color */
+      --brand-light:  #F9F9F9;    /* light background color */
+      --brand-brown:  #8b6844;    /* secondary accent color */
+      --brand-lime:   #cdee73;    /* secondary accent color */
+      --brand:#bce472;
+      --muted:#6b6b6b;
+    }
+    body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; background:#f7f7f8; color:#111}
+    .hero {position:relative; background-size:cover; background-position:center; min-height:420px; display:flex; align-items:flex-end;}
+    .hero .overlay{position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.6));}
+    .hero .hero-inner{position:relative; z-index:2; padding:36px; color:white;}
+    .rating {color:#ffb020; font-weight:600}
+    .chips .badge{margin-right:8px}
+
+
+    .navbar-nav .nav-link {
+      color: var(--brand-brown);          /* nav text color */
+    }
+
+    .navbar {
+      background-color: white;            /* dark navbar */
+    }
+
+    .navbar .navbar-brand {
+      color: var(--brand-brown);           /* brand logo color */
+      font-weight: 600;                     /* medium bold weight */
+    }
+
+        /* Navbar links */
+.navbar .nav-link {
+  color: var(--brand-brown);
+  transition: color 0.3s ease;
+}
+
+/* Hover color */
+.navbar .nav-link:hover {
+  color: #ddb33d; /* change to any color you want */
+}
+    /* Sign up button */
+.btn-signup {
+  background-color: transparent;
+  color: #8b6844;
+  border-radius: 50px;
+  border: 1px solid #8b6844;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.text-hover {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--brand-brown);        /* normal text color */
+  cursor: pointer;
+  font: inherit;        /* match surrounding text */
+}
+
+.text-hover:hover {
+  color: #ddb33d;       /* hover text color */
+
+}
+
+        .options-btns .btn {
+      border-radius: 30px;
+      margin: 6px;
+      color: var(--brand-brown);
+      border: 1px solid var(--brand-brown);
+      background: white;
+      transition: all .3s ease;
+    }
+    .options-btns .btn:hover {
+      background: var(--brand-brown);
+      color: white;
+    }
+
+
+    /* gallery */
+    .gallery-thumb{width:100%; height:100%; object-fit:cover; cursor:pointer}
+    .thumb-row{display:flex; gap:8px}
+    .thumb-row .col{padding-left:0;padding-right:0}
+
+    /* sticky booking panel */
+    .booking-panel{position:sticky; top:100px}
+    .price-large{font-size:1.6rem; font-weight:700}
+
+    /* responsiveness */
+    @media (max-width:991px){
+      .booking-panel{position:static; margin-top:18px}
+      .hero{min-height:260px}
+    }
+
+    /* small decorative */
+    .pill{background:rgba(255,255,255,0.08); padding:10px 14px; border-radius:999px; display:inline-block}
+    .review-card{background:white; border-radius:12px; padding:16px}
+
+    
+
+/* ===== Travel-style Footer ===== */
+
+    footer {
+      background: white;
+      padding: 40px 0;
+      text-align: center;
+      color: #666;
+    }
+
+.site-footer {
+  background: #ffffff;
+  border-top: 1px solid #eee;
+  padding: 60px 0 30px;
+  color: #555;
+  font-size: 14px;
+}
+
+.site-footer h6 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--brand-dark);
+}
+
+.site-footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.site-footer ul li {
+  margin-bottom: 8px;
+}
+
+.site-footer ul li a {
+  text-decoration: none;
+  color: #6b6b6b;
+  transition: color 0.2s ease;
+}
+
+.site-footer ul li a:hover {
+  color: var(--brand-brown);
+}
+
+.footer-brand {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--brand-brown);
+}
+
+.footer-desc {
+  color: #777;
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+.footer-bottom {
+  border-top: 1px solid #eee;
+  margin-top: 40px;
+  padding-top: 20px;
+  font-size: 13px;
+  color: #888;
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  margin-right: 8px;
+  color: var(--brand-brown);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.social-links a:hover {
+  background: var(--brand-brown);
+  color: #fff;
+  border-color: var(--brand-brown);
+}
+
+.footer-brand-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* horizontal center */
+}
+
+.footer-brand-col .footer-desc {
+  text-align: center;
+}
+
+.footer-brand-col .social-links {
+  justify-content: center;
+}
+
+

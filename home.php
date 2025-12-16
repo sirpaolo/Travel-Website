@@ -1,19 +1,5 @@
 <?php 
-    $serverName="HELIOS"; 
-    $connectionOptions=[ 
-        "Database"=>"DLSU", 
-        "Uid"=>"", 
-        "PWD"=>"" 
-    ]; 
-    $conn=sqlsrv_connect($serverName, $connectionOptions); 
-    if($conn==false) {
-        die(print_r(sqlsrv_errors(),true)); 
-    } 
-
-        $sql_profile = "SELECT TOP 1 NAME FROM USERS ORDER BY USERID DESC";
-        $result_profile = sqlsrv_query($conn, $sql_profile);
-        $row_profile = sqlsrv_fetch_array($result_profile);
-        $username = $row_profile['NAME'];
+require 'GoogleAPI/config.php';
 ?>
 
 <!DOCTYPE html>
@@ -21,414 +7,297 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GABAi – Explore & Book</title>
+  <title>GABAi – Travel Guide Buddy</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    :root {
-      --brand-orange: #FF823D;    /* brand accent color */
-      --brand-purple: #5A3CFF;    /* optional theme color */
-      --brand-cyan:   #00D8FF;    /* optional theme color */
-      --brand-dark:   #1E1E1E;    /* dark text / background color */
-      --brand-light:  #F9F9F9;    /* light background color */
-      --brand-brown:  #8b6844;    /* secondary accent color */
-      --brand-lime:   #cdee73;    /* secondary accent color */
-    }
+  <link rel="stylesheet" href="homepage.css">
 
-    body {
-      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;   /* main font */
-      color: var(--brand-dark);             /* default text color */
-      background-color: var(--brand-light); /* light page background */
-    }
-
-    .navbar-nav .nav-link {
-      color: var(--brand-brown);          /* nav text color */
-    }
-
-    .navbar {
-      background-color: white;            /* dark navbar */
-    }
-
-    .navbar .navbar-brand {
-      color: var(--brand-brown);           /* brand logo color */
-      font-weight: 600;                     /* medium bold weight */
-    }
-
-    .hero {
-      position: relative;                   /* enables overlay & layered items */
-      height: 80vh;                        /* full-screen section */
-      display: flex;                        /* center content */
-      align-items: center;                  /* vertical center */
-      justify-content: center;              /* horizontal center */
-      color: white;                         /* hero text color */
-      overflow: hidden;                     /* hide overflow content */
-    }
-
-    .hero-content {
-      position: relative;                   /* keep above overlay */
-      z-index: 2;                           /* layered above carousel */
-      text-align: center;                   /* center text */
-      max-width: 800px;                     /* limit text width */
-      padding: 0 20px;                      /* small horizontal padding */
-    }
-
-    .hero-title {
-      font-size: 8rem;                      /* huge hero title */
-      line-height: 1;                       /* tight spacing */
-    }
-
-    .carousel-item img {
-      object-fit: cover;                    /* crop image to fill space */
-    }
-
-    .hero::before {                         /* Dark overlay effect */
-      content: "";                          /* creates overlay layer */
-      position: absolute;                   /* stretch inside hero */
-      top: 0; left: 0;                      /* start at top-left corner */
-      width: 100%; height: 100%;            /* cover entire hero */
-      background: rgba(0,0,0,0.30);         /* DARK overlay effect */
-      z-index: 2;                           /* overlay above images */
-      pointer-events: none;                 /* keep carousel buttons clickable */
-    }
-
-    .hero .hero-content {                   /* Title and subtext */
-      position: relative;                   /* text layer positioning */
-      z-index: 2;                           /* above overlay */
-      text-align: center;                   /* center text */
-      width: 100%;                          /* full width */
-      max-width: none;                      /* allow very large text */
-      padding: 0 20px;                      /* inner spacing */
-    }
-
-    .carousel-control-prev,
-    .carousel-control-next {
-      width: 45px;                          /* arrow button size */
-      height: 45px;
-      top: 50%;                             /* vertical center */
-      transform: translateY(-50%);          /* exact vertical center */
-      background-color: none;               /* no background */
-      border-radius: 50%;                   /* circular shape */
-      border: none;                         /* no border */
-      opacity: 1;                           /* fully visible */
-    }
-
-    .carousel-control-prev-icon,
-    .carousel-control-next-icon {
-      filter: invert(1) brightness(0);      /* black arrow icons */
-    }
-
-    .hero .carousel-control-prev {
-      left: 20px;
-    }
-
-    .hero .carousel-control-next {
-      right: 20px;
-    }
-
-    .carousel-control-prev {
-      left: -50px;                          /* move arrow left OUTSIDE */
-    }
-
-    .carousel-control-next {
-      right: -50px;                         /* move arrow right OUTSIDE */
-    }
-
-
-    .search-bar {
-      background: white;
-      border-radius: 50px;
-      padding: 12px 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    }
-    .search-bar .form-control, .search-bar .form-select {
-      border: none;
-      outline: none;
-      box-shadow: none;
-    }
-    .search-bar .btn {
-      background: var(--brand-orange);
-      color: white;
-      border-radius: 50px;
-      padding: 10px 25px;
-    }
-
-    .options-btns .btn {
-      border-radius: 30px;
-      margin: 6px;
-      color: var(--brand-brown);
-      border: 1px solid var(--brand-brown);
-      background: white;
-      transition: all .3s ease;
-    }
-    .options-btns .btn:hover {
-      background: var(--brand-brown);
-      color: white;
-    }
-
- /* SECOND HERO - background + overlay */
-.hero-two {
-  position: relative;
-  height: 80vh;
-  min-height: 420px;
-  width: 100%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* background element (NO transition) */
-.hero-two-bg {
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 1;
-  /* transition removed */
-}
-
-/* darker overlay */
-.hero-two-overlay {
-  background: rgba(0,0,0,0.50);
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.hero-two-content {
-  position: absolute;     /* allow custom positioning */
-  bottom: 40px;           /* distance from bottom */
-  left: 40px;             /* distance from left */
-  z-index: 3;
-  color: white;
-  text-align: left;       /* left-align text */
-  max-width: 400px;       /* optional: avoid super-wide text */
-}
-
-
-/* thumbnail row bottom-right */
-.thumb-row {
-  position: absolute;
-  bottom: 60px;
-  right: 20px;
-  z-index: 4;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: nowrap;
-}
-
-/* Thumbnail cards (NO transition) */
-.thumb-card {
-  border: none;
-  padding: 0;
-  background: transparent;
-  width: 60px;
-  height: 100px;
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: pointer;
-  
-}
-
-/* Thumbnail image */
-.thumb-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Active thumbnail */
-.thumb-card.active {
-  transform: scale(1.05);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
-}
-
-/* Hover (instant — no transition) */
-.thumb-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.20);
-}
-
-/* keyboard focus */
-.thumb-card:focus {
-  box-shadow: 0 0 0 3px rgba(188,228,114,0.22);
-}
-
-/* mobile adjustments */
-@media (max-width: 576px) {
-  .hero-two { height: 56vh; min-height: 340px; }
-  .thumb-card { width: 72px; height: 50px; }
-}
-
-
-    .destination-card {
-      overflow: hidden;
-      border: none;
-      transition: transform .3s ease, box-shadow .3s ease;
-      cursor: pointer;
-    }
-    .destination-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.20);
-    }
-    .destination-card img {
-      height: 220px;
-      object-fit: cover;
-    }
-    .destination-card .card-body {
-      text-align: center;
-      padding: 1rem;
-    }
-    .review-stars {
-      color: #ffae00;
-    }
-
-    footer {
-      background: white;
-      padding: 40px 0;
-      text-align: center;
-      color: #666;
-    }
-  </style>
 </head>
 <body>
 
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg fixed-top">
-    <div class="container">
-      <a class="navbar-brand fs-3" href="#">GABAi 𓆝 </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+<?php
+  if (isset($_SESSION['user'])) {
+      $user = $_SESSION['user'];
+  } else {
+      $user = null;
+  }
 
-      <div class="collapse navbar-collapse justify-content-center" id="navMenu">
-        <ul class="navbar-nav mb-2 mb-lg-0">
-          <li class="nav-item mx-3"><a class="nav-link" href="#">HOME</a></li>
-          <li class="nav-item mx-3"><a class="nav-link" href="#destinations">DESTINATIONS</a></li>
-          <li class="nav-item mx-3"><a class="nav-link" href="#">DEALS</a></li>
-          <li class="nav-item mx-3"><a class="nav-link" href="#">ABOUT US</a></li>
-        </ul>
+?>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <div class="container">
+        <a class="navbar-brand fs-3" href="#">GABAi 𓆝 </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-center" id="navMenu">
+          <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
+            <li class="nav-item mx-3"><a class="nav-link" href="search.php">SEARCH</a></li>
+            <li class="nav-item mx-3"><a class="nav-link" href="home.php">HOME</a></li>
+            <li class="nav-item mx-3"><a class="nav-link" href="#destinations">DEALS</a></li>
+            <li class="nav-item mx-3"><a class="nav-link" href="#about-us">ABOUT US</a></li>
+          </ul>
+        </div>
+
+        <?php if ($user): ?>
+          <!-- Logged-in view: avatar + name + dropdown -->
+          <div class="d-flex align-items-center">
+            <div class="dropdown">
+              <a class="d-flex align-items-center text-decoration-none dropdown-toggle" 
+                href="#" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                style="color:#8b6844;">
+
+                <!-- Avatar -->
+                <?php if (!empty($user['picture'])): ?>
+                  <img src="<?php echo htmlspecialchars($user['picture']); ?>" 
+                      alt="Avatar" width="36" height="36" 
+                      class="rounded-circle me-2">
+                <?php else: ?>
+                  <span class="rounded-circle me-2"
+                        style="display:inline-block;
+                              width:36px;height:36px;
+                              background:#8b6844;color:#fff;
+                              line-height:36px;text-align:center;
+                              border-radius:50%;">
+                      <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
+                  </span>
+                <?php endif; ?>
+
+                <!-- Name -->
+                <span class="fw-bold"><?php echo htmlspecialchars($user['name']); ?></span>
+              </a>
+
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="GoogleAPI/logout.php">Logout</a></li>
+              </ul>
+            </div>
+          </div>
+
+        <?php else: ?>
+          <!-- Not logged in: Sign up / Log in buttons -->
+          <button type="button" 
+                  class="text-hover pe-4 fw-semibold" 
+                  data-bs-toggle="modal" data-bs-target="#regisModal">
+            Sign up
+          </button>
+
+          <button type="button" class="btn"
+                  style="background-color: #8b6844; 
+                        color: white; 
+                        border-radius: 50px;"
+                  data-bs-toggle="modal" data-bs-target="#loginModal">
+            Log in
+          </button>
+        <?php endif; ?>
+
       </div>
+    </nav>
 
-      <button type="button" class="btn mx-2" style="background-color: transparent; color: #8b6844; border-radius: 50px; border-color: #8b6844;"><?php echo $username; ?></button>
-      <button type="button" class="btn" style="background-color: #8b6844; color: white; border-radius: 50px;" >Log Out</button>
 
+    <!-- Registration Modal -->
+    <div class="modal fade" id="regisModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">Create Account</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="/mytravel/GoogleAPI/regis.php" method="POST">
+              <div class="mb-3">
+                <label for="username" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+              </div>
+
+              <div class="options-btns mt-4">
+              <button type="submit" class="btn">Sign up</button>
+              </div>
+
+              <div class="d-flex align-items-center my-3">
+                <hr class="flex-grow-1">
+                <span class="px-2" style="color:#8b6844; font-weight:600;">OR</span>
+                <hr class="flex-grow-1">
+              </div>
+
+
+              <div class="mb-3 text-center">
+                <!-- Google login button — uses same rounded style as your Log in button -->
+                <a href="/mytravel/GoogleAPI/google-login.php" 
+                  class="btn" 
+                  style="background-color: #eceff5ff; color: black; border-radius: 50px; display:inline-flex; align-items:center; gap:8px;">
+                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width:20px;height:20px;">
+                  Sign up with Google
+                </a>
+              </div>
+              
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
-  </nav>
 
-<!-- Hero Section -->
-<section class="hero position-relative">
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
 
-  
-  <!-- Carousel -->
-  <div id="heroCarousel" class="carousel slide w-100 h-100 position-absolute top-0 start-0" data-bs-ride="carousel">
-    <div class="carousel-inner h-100">
-      <div class="carousel-item active h-100" >
-        <img src="Images/pinatubo1.jpg" class="d-block w-100 h-100" alt="Slide 1">
-      </div>
-      <div class="carousel-item h-100">
-        <img src="Images/fd4.jpg" class="d-block w-100 h-100" alt="Slide 2">
-      </div>
-      <div class="carousel-item h-100">
-        <img src="https://i.pinimg.com/1200x/d9/ad/59/d9ad5911ab6b224a94af3823bc508d0d.jpg" class="d-block w-100 h-100" alt="Slide 3">
-      </div>
-      <div class="carousel-item h-100">
-        <img src="https://i.pinimg.com/1200x/23/1c/81/231c817b08e7e1b77e055c4b3bdcfdaa.jpg" class="d-block w-100 h-100" alt="Slide 4">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">Log In</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <form action="/mytravel/GoogleAPI/login.php" method="POST">
+
+
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+              </div>
+
+              <div class="options-btns mt-4">
+                <button type="submit" class="btn">Log In</button>
+              </div>
+
+              <div class="d-flex align-items-center my-3">
+                <hr class="flex-grow-1">
+                <span class="px-2" style="color:#8b6844; font-weight:600;">OR</span>
+                <hr class="flex-grow-1">
+              </div>
+
+              <div class="mb-3 text-center">
+                <a href="/mytravel/GoogleAPI/google-login.php"
+                  class="btn"
+                  style="background-color: #eceff5ff; color: black; border-radius: 50px; display:inline-flex; align-items:center; gap:8px;">
+                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                      alt="Google"
+                      style="width:20px;height:20px;">
+                  Login with Google
+                </a>
+              </div>
+
+              <!-- Sign Up Link -->
+              <div class="text-center mt-3">
+                <p style="margin: 0;">
+                  Don't have an account?
+                  <a href="#" data-bs-toggle="modal" data-bs-target="#regisModal"
+                    data-bs-dismiss="modal"
+                    style="color:#8b6844; font-weight:600; text-decoration:none;">
+                    Sign up
+                  </a>
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Overlay -->
-  <div class="hero-overlay position-absolute w-100 h-100" style="background: rgba(0,0,0,0.45); pointer-events: none;"></div>
 
-  <!-- Hero content -->
-  <div class="w-100 text-center position-absolute top-50 start-50 translate-middle hero-content">
-    <h1 class="display-4 fw-normal text-white">WELCOME TO THE</h1>
-    <h1 class="hero-title text-white fw-bolder text-center">PHILIPPINES</h1>
 
-    <p class="lead text-white">No matter where your heart leads you, we’re here to help you</p>
-    <p class="lead text-white">find the perfect destination for every moment, every dream, and every adventure.</p>
+  <!-- Hero Section -->
+  <section class="hero position-relative overflow-hidden">
 
-    <!-- Search Bar 
-    <div class="search-bar d-flex align-items-center justify-content-between mx-auto px-2 py-2" style="max-width: 600px;">
-      <input type="text" class="form-control border-0 shadow-none flex-fill ms-2" placeholder="Search destinations or activities" />
-      <button class="btn px-4 py-2 ms-2">Search</button>
+    <!-- Background Video -->
+    <video
+      class="hero-video"
+      autoplay
+      muted
+      loop
+      playsinline
+    >
+      <source src="Videos/lovetheph.mp4" type="video/mp4">
+    </video>
+
+    <!-- Overlay -->
+    <div class="hero-overlay"></div>
+
+    <!-- Hero content (UNCHANGED) -->
+    <div class="w-100 text-center position-absolute top-50 start-50 translate-middle hero-content scroll-animate fade-up">
+      <h1 class="display-4 fw-normal text-white scroll-animate fade-up">
+        WELCOME TO THE
+      </h1>
+
+      <h1 class="hero-title text-white fw-bolder text-center scroll-animate fade-up">
+        PHILIPPINES
+      </h1>
+
+      <p class="lead text-white scroll-animate fade-up">
+        No matter where your heart leads you, we’re here to help you
+      </p>
+      <p class="lead text-white scroll-animate fade-up">
+        find the perfect destination for every moment, every dream, and every adventure.
+      </p>
     </div>
 
-    -- Option Buttons 
-    <div class="options-btns mt-4">
-      <button class="btn">Flights</button>
-      <button class="btn">Hotels</button>
-      <button class="btn">Activities</button>
-      <button class="btn">Packages</button>
-    </div>
-  </div> -->
 
-  <!-- Carousel Controls (outside content layer, clickable) -->
-  <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
-  </button>
-
-  <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
-  </button>
-
-</section>
-
+  </section>
 
 <!-- Where to next? Section -->
 <section class="container my-5">
-    <h2 class="fw-semibold mb-4">Where to next?</h2>
+    <h2 class="fw-semibold mb-4 scroll-animate fade-up">Where to next?</h2>
 
     <div class="row g-4">
 
-          <div class="col-md-2" style="max-width: 300px;">
-            <div class="card destination-card">
-              <img src="https://i.pinimg.com/1200x/b6/0e/d4/b60ed4cc08e22ae3306dda3629ddffcc.jpg" class="card-img-top" alt="Destination 1">
-            </div>
-          </div>
+      <div class="col-md-2" style="max-width: 300px;">
+        <div class="card destination-card">
+          <img src="https://i.pinimg.com/1200x/b6/0e/d4/b60ed4cc08e22ae3306dda3629ddffcc.jpg" class="card-img-top" alt="Destination 1">
+        </div>
+      </div>
 
-          <div class="col-md-2" style="max-width: 300px;">
-            <div class="card destination-card">
-              <img src="https://i.pinimg.com/736x/ee/df/3b/eedf3b5961f9a2e727777e4e5ae6b1a1.jpg" class="card-img-top" alt="Destination 2">
-            </div>
-          </div>
+      <div class="col-md-2" style="max-width: 300px;">
+        <div class="card destination-card">
+          <img src="https://i.pinimg.com/736x/ee/df/3b/eedf3b5961f9a2e727777e4e5ae6b1a1.jpg" class="card-img-top" alt="Destination 2">
+        </div>
+      </div>
 
-          <div class="col-md-2" style="max-width: 300px;">
-            <div class="card destination-card">
-              <img src="https://i.pinimg.com/736x/7b/ef/81/7bef81233a21b42f734b3f43b705e4c0.jpg" class="card-img-top" alt="Destination 3">
-            </div>
-          </div>
+      <div class="col-md-2" style="max-width: 300px;">
+        <div class="card destination-card">
+          <img src="Images/rizal1.jpg" class="card-img-top" alt="Destination 3">
+        </div>
+      </div>
 
-          <div class="col-md-2" style="max-width: 300px;">
-            <div class="card destination-card">
-              <img src="https://i.pinimg.com/736x/49/4a/bd/494abd645df41d9b3b523f6bed010499.jpg" class="card-img-top" alt="Destination 4">
+      <div class="col-md-2" style="max-width: 300px;">
+        <div class="card destination-card">
+          <img src="https://i.pinimg.com/736x/49/4a/bd/494abd645df41d9b3b523f6bed010499.jpg" class="card-img-top" alt="Destination 4">
+        </div>
+      </div>
 
-            </div>
-          </div>
-          <div class="col-md-2" style="max-width: 300px;">
-            <div class="card destination-card">
-              <img src="https://i.pinimg.com/736x/94/a2/bf/94a2bfb1e1690b9943e7a16197a08eb3.jpg" class="card-img-top" alt="Destination 4">
+      <div class="col-md-2" style="max-width: 300px;">
+        <div class="card destination-card">
+          <img src="https://i.pinimg.com/736x/94/a2/bf/94a2bfb1e1690b9943e7a16197a08eb3.jpg" class="card-img-top" alt="Destination 5">
+        </div>
+      </div>
 
-            </div>
-          </div>
-
-          <div class="col-md-2" style="max-width: 300px;">
-            <div class="card destination-card">
-              <img src="https://i.pinimg.com/1200x/e9/91/70/e9917099ba24fe0999b3b540e7a6b691.jpg" class="card-img-top" alt="Destination 4">
-
-            </div>
-          </div>
+      <div class="col-md-2" style="max-width: 300px;">
+        <div class="card destination-card">
+          <img src="Images/bora2.jpg" class="card-img-top" alt="Destination 6">
+        </div>
+      </div>
 
     </div>
 </section>
+
 
 <section class="py-3"></section>
 
@@ -513,7 +382,54 @@
   
 </section>
 
-<section id="destinations" class="py-3"></section>
+
+<!-- Why GABAi / Features -->
+<section class="features scroll-animate" aria-label="Why choose GABAi" id="destinations">
+  <div class="feature scroll-animate fade-up">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2l2 5 5 .5-4 3 1.2 5L12 14l-4.2 1.5L9 10 5 7.5 10 7 12 2z" fill="url(#g1)"></path>
+      <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#5A3CFF"/><stop offset="1" stop-color="#FF823D"/></linearGradient></defs>
+    </svg>
+    <div>
+      <h4>Handpicked stays</h4>
+      <p>Quality-checked hotels and unique local homes.</p>
+    </div>
+  </div>
+
+  <div class="feature scroll-animate fade-up">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="8" r="3" fill="#00D8FF"/>
+      <path d="M4 20c2-4 6-6 8-6s6 2 8 6" stroke="#5A3CFF" stroke-width="1.2" fill="none"/>
+    </svg>
+    <div>
+      <h4>Best price guarantee</h4>
+      <p>Competitive rates + exclusive deals for members.</p>
+    </div>
+  </div>
+
+  <div class="feature scroll-animate fade-up">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="14" rx="2" fill="#8b6844"/>
+      <path d="M7 20h10" stroke="#1E1E1E" stroke-width="1.2"/>
+    </svg>
+    <div>
+      <h4>Easy booking</h4>
+      <p>Fast checkout, secure payments, and flexible options.</p>
+    </div>
+  </div>
+
+  <div class="feature scroll-animate fade-up">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2v6" stroke="#5A3CFF" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M6 10l6 10 6-10" stroke="#FF823D" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <h4>24/7 support</h4>
+      <p>Local support and travel help whenever you need it.</p>
+    </div>
+  </div>
+</section>
+
 
 <!-- Popular Destinations Section -->
 <section id="" class="container my-5">
@@ -529,7 +445,7 @@
           <div class="col-md-3" style="max-width: 300px;">
             <div class="card destination-card"
                 style="cursor: pointer;"
-                onclick="window.location.href='iao.html';">
+                onclick="window.location.href='Deals/iao.php';">
 
               <img src="https://i.pinimg.com/1200x/df/ac/00/dfac00de75d4315b35b9f65062098a30.jpg" 
                   class="card-img-top" alt="Destination 1">
@@ -538,6 +454,7 @@
                 <p class="card-text text-muted">Boat tours • Siargao Island</p>
                 <h5 class="card-title"><strong>Tri-Island Tour in Siargao</strong></h5>
                 <p class="card-text text-muted">Hotel pick-up</p>
+                <p class="card-text text-muted">Buffet Lunch</p>
                 <p class="card-text text-muted"><span class="review-stars"><strong>★5.0</strong></span> (1,964) • 10K+ booked</p>
                 <p><strong>₱ 1,470</strong></p>
               </div>
@@ -549,7 +466,7 @@
           <div class="col-md-3" style="max-width: 300px;">
             <div class="card destination-card"
               style="cursor: pointer;"
-              onclick="window.location.href='mbrental.html';">
+              onclick="window.location.href='Deals/mbrental.php';">
               <img src="https://i.pinimg.com/1200x/1a/ca/f0/1acaf0e79fbe00831ab089bb868dd70b.jpg" class="card-img-top" alt="Destination 2">
               <div class="card-body">
                 <p class="card-text text-muted">Scooters & Bikes • Siargao Island</p>
@@ -564,7 +481,7 @@
           <div class="col-md-3" style="max-width: 300px;">
             <div class="card destination-card"
               style="cursor: pointer;"
-              onclick="window.location.href='boraparasail.html';">
+              onclick="window.location.href='Deals/boraparasail.php';">
               <img src="https://i.pinimg.com/1200x/71/75/5e/71755e6c7716a5b951f430ceb07f6035.jpg" class="card-img-top" alt="Destination 3">
               <div class="card-body">
                 <p class="card-text text-muted">Paragliding • Boracay</p>
@@ -580,7 +497,7 @@
           <div class="col-md-3" style="max-width: 300px;">
             <div class="card destination-card"
               style="cursor: pointer;"
-              onclick="window.location.href='corondaytour.html';">
+              onclick="window.location.href='Deals/corondaytour.php';">
               <img src="https://i.pinimg.com/1200x/6e/88/06/6e88066b8a86d4f02b7c2c892c185e4c.jpg" class="card-img-top" alt="Destination 4">
               <div class="card-body">
                 <p class="card-text text-muted">Water sports • Coron</p>
@@ -602,20 +519,25 @@
         <div class="row g-4 justify-content-center">
           
           <div class="col-md-3" style="max-width: 300px;">
-            <div class="card destination-card">
+            <div class="card destination-card"
+              style="cursor: pointer;"
+              onclick="window.location.href='Deals/selah.php';">
               <img src="https://cdn.studios.skies.asia/www.selahpods.com/LRlbmSPuqR_1590551856.jpg" class="card-img-top" alt="Destination 5">
               <div class="card-body">
                 <p class="card-text text-muted">Hotels • Pasay</p>
                 <h5 class="card-title"><strong>Selah Pods Hotel Manila</strong></h5>
                 <p class="card-text text-muted">Instant confirmation</p>
+                <p class="card-text text-muted">Buffet breakfast</p>
                 <p class="card-text text-muted"><span class="review-stars"><strong>★4.5</strong></span> (420) • 400+ booked</p>
                 <p><strong>₱ 1,702</strong></p>
               </div>
             </div>
           </div>
 
-          <div class="col-md-3">
-            <div class="card destination-card" style="max-width: 300px;">
+          <div class="col-md-3" style="max-width: 300px;">
+            <div class="card destination-card"
+              style="cursor: pointer;"
+              onclick="window.location.href='Deals/mayon.php';">
               <img src="https://i.pinimg.com/1200x/a2/05/45/a20545ee412364dd62f1e58dcd5cef21.jpg" class="card-img-top" alt="Destination 6">
               <div class="card-body">
                 <p class="card-text text-muted">Day trips • Legazpi</p>
@@ -628,8 +550,10 @@
             </div>
           </div>
 
-          <div class="col-md-3">
-            <div class="card destination-card" style="max-width: 300px;">
+          <div class="col-md-3" style="max-width: 300px;">
+            <div class="card destination-card"
+              style="cursor: pointer;"
+              onclick="window.location.href='Deals/vikings.php';">
               <img src="https://assets.micontenthub.com/DXBDJ/outlets/fogueira/1680868167-Buffet3.jpg" class="card-img-top" alt="Destination 7">
               <div class="card-body">
                 <p class="card-text text-muted">Food & dining • Cebu City</p>
@@ -641,8 +565,10 @@
             </div>
           </div>
 
-          <div class="col-md-3">
-            <div class="card destination-card" style="max-width: 300px;">
+          <div class="col-md-3" style="max-width: 300px;">
+            <div class="card destination-card"
+              style="cursor: pointer;"
+              onclick="window.location.href='Deals/oceanpark.php';">
               <img src="https://i.pinimg.com/736x/b4/b1/29/b4b129d0f76370a4ccd13d11e4fd111d.jpg" class="card-img-top" alt="Destination 8">
               <div class="card-body">
                 <p class="card-text text-muted">Zoos & aquariums • Cebu City</p>
@@ -674,15 +600,163 @@
 </section>
 
 
+<!-- CTA -->
+<section style="padding:0 18px; margin-bottom: 24px;">
+  <div class="cta">
+    <div>
+      <h3>Ready to explore? Save on your next stay.</h3>
+      <p>Join GABAi and unlock member-only discounts, flexible booking, and priority support.</p>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <a href="#" class="btn btn-primary" style="border-radius:10px; background: var(--brand-brown); border:none; color:#fff;">Get started</a>
+    </div>
+  </div>
+</section>
 
-  <!-- Footer -->
-  <footer>
-    <p class="mb-0">© 2025 TravelSite. All rights reserved.</p>
-  </footer>
+
+<!-- About -->
+<section id="about-us" aria-labelledby="about-heading">
+  <div class="about-container">
+
+    <div class="bg-blobs">
+      <!-- <span class="blob blob-green"></span> -->
+      <span class="blob blob-yellow"></span>
+    </div>
+
+    <!-- Logo Image -->
+    <img 
+      src="Images/me4.jpg" 
+      alt="GABAi logo" 
+      class="about-logo"
+    />
+
+    <div class="about-content">
+      <h2 id="about-heading">About Me</h2>
+
+      <p>
+        Hi! I'm the creator of <strong>GABAi</strong> — a name inspired by the words
+        "<em>gabay</em>" meaning guide and "<em>bai</em>" meaning buddy in Bisaya. 
+        Inspired by the beauty of the Philippines,
+        GABAi was built with one simple mission: to be your friendly and reliable
+        travel companion wherever your journey takes you.
+      </p>
+
+      <p>
+        As a solo developer and passionate traveler, I’ve experienced both the
+        excitement and the challenges of exploring new places — from planning routes
+        and finding hidden spots to managing time and budgets. Those experiences
+        inspired me to create a platform that helps travelers travel smarter, not harder.
+      </p>
+
+      <p>
+        More than just a website, GABAi aims to celebrate culture, encourage exploration,
+        and make travel more meaningful. My goal is to grow GABAi into a trusted companion
+        for travelers who seek authentic experiences and unforgettable journeys.
+      </p>
+
+    </div>
+  </div>
+</section>
+
+
+
+
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="row gy-4">
+
+      <!-- Brand / About -->
+      <div class="col-lg-4 col-md-6 text-center footer-brand-col">
+        <div class="footer-brand mb-2">GABAi 𓆝</div>
+        <p class="footer-desc">
+          Your friendly travel guide and buddy. Discover destinations, book experiences,
+          and explore the Philippines with confidence.
+        </p>
+      </div>
+
+      <!-- Explore -->
+      <div class="col-lg-2 col-md-6">
+        <h6>Explore</h6>
+        <ul>
+          <li><a href="#">Destinations</a></li>
+          <li><a href="#">Deals</a></li>
+          <li><a href="#">Activities</a></li>
+          <li><a href="#">Hotels</a></li>
+        </ul>
+      </div>
+
+      <!-- Company -->
+      <div class="col-lg-2 col-md-6">
+        <h6>Company</h6>
+        <ul>
+          <li><a href="#about-us">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+
+      <!-- Support -->
+      <div class="col-lg-2 col-md-6">
+        <h6>Support</h6>
+        <ul>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">FAQs</a></li>
+          <li><a href="#">Cancellation Policy</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- Legal -->
+      <div class="col-lg-2 col-md-6">
+        <h6>Legal</h6>
+        <ul>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Cookies</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Bottom -->
+    <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center">
+      <div>
+        © 2025 <strong>GABAi</strong>. WEB DESIGN AND DEVELOPMENT 
+      </div>
+      <div class="mt-2 mt-md-0">
+        CREUS - CPE42
+
+      </div>
+    </div>
+  </div>
+</footer>
+
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="herobg.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    document.querySelectorAll(".scroll-animate").forEach(el => {
+      observer.observe(el);
+    });
+  });
+  </script>
+
 
 </body>
 </html>
