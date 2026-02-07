@@ -3,6 +3,7 @@
 GABAi is a web-based travel booking platform designed to showcase the beauty of the Philippines while providing users with a simple, secure, and user-friendly way to explore destinations and book accommodations and activities.
 
 This project was developed as part of the **Web Design and Development Lab (T-CPET418LA)** and demonstrates full-stack web development skills, API integration, and database-driven booking systems.
+![Uploading 1.png…]()
 
 ---
 
